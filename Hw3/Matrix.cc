@@ -1,10 +1,20 @@
 #include "Matrix.h"
 
+/*
+  Matrix.cc -- functions for custom made Matrix class.
+
+  Author: John Cormican
+
+  Purpouse: To provide necessary functions for use of Matrix class.
+
+  Usage: To be used with Matrix.h and some main.cpp, to allow use of matrix
+          of functions for matrix class in main.
+*/
 
 Matrix::Matrix(const int r, const int c) : nrows(r), ncols(c), data(new double[r*c]), entry(new double*[r])
 /* Function to construct a zeroed matrix of size r x c. */
 {
-  // Memory allocation does before the start.
+  // Memory allocation done on top line.
 
   // Everything set to 0, and entries organised to point correctly.
   memset(data,0.0,sizeof(double)*r*c);
@@ -43,14 +53,15 @@ Matrix& Matrix::operator=(const Matrix& mat_in)
   double* p = new double[mat_in.nrows*mat_in.ncols];
   std::copy(mat_in.data,mat_in.data+(mat_in.nrows*mat_in.ncols),p);
 
-  // Old pointers freed and new assignments
+  // Old pointers freed and new assignments made
   delete[] this->data;
   delete[] this->entry;
   data = p;
   nrows = mat_in.nrows;
   ncols = mat_in.ncols;
   entry = new double*[nrows];
-  for (int i = 0; i < nrows; i++) {
+  for (int i = 0; i < nrows; i++)
+  {
     entry[i] = &data[i*ncols];
   }
 
@@ -269,18 +280,20 @@ void Matrix::transpose()
 void Matrix::randomize(int a,int b)
 /*Function to set Matrix values to random values to make testing clearer. */
 {
-  std::random_device rd;  //Will be used to obtain a seed for the random number engine
-  std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-  std::uniform_real_distribution<> dis(-2.0, 2.0);
+  std::random_device seed;  //Will be used to obtain a seed for the random number engine
+  std::mt19937 gen(seed()); //Standard mersenne_twister_engine seeded with rd()
+  std::uniform_real_distribution<> distr(a, b);
   for (int i = 0; i < nrows*ncols; i++) {
-    data[i] = dis(gen);
+    data[i] = distr(gen);
   }
 }
 
-void Matrix::print(){
+void Matrix::print()
+/* Function to allow simple printing of matrix. */
+{
   std::cout << std::fixed;
   std::cout << std::setprecision(2);
-  //Matrix Printed:
+  // Matrix Printed:
   std::cout << '\n';
   for (int i = 0; i<nrows; ++i){
     std::cout << "( ";
