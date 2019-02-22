@@ -1,24 +1,22 @@
-
 #include <iostream>
 #include <random>
 #include <iomanip>
 
 /*
-  Matrix.h -- header file for Matrix class, declaring .
+  Matrix.h -- header file for custom made Matrix class.
 
   Author: John Cormican
 
-  Purpouse: Simulate cache operation
+  Purpouse: To declare variables and functions for matrix class.
 
-  Usage: Runs program, option with optional arguments -a associativity
-  of the cache, -f filename where address stream is taken from, -l for cache
-  line length and -s for cache size. If no arguments given default values are
-  set to match the assignment question.
+  Usage: To be used with Matrix.cc and some main.cpp, to allow use of
+          matrix class in main.
 */
 
 class Matrix
 {
 private:
+  // Necessary variables
   int nrows;
   int ncols;
   double* data;
@@ -34,10 +32,10 @@ public:
   double get(int i_row, int j_col);
   double* operator[](const int i);
 
-  //sum & prod functions called by +, -, and * operators
+  //prod function called by * operators
   Matrix& prod(Matrix mat_a, Matrix mat_b);
 
-  // increment operators
+  // increment operators, used by + and - operators
   Matrix& operator+=(const Matrix& mat);
   Matrix& operator-=(const Matrix& mat);
 
