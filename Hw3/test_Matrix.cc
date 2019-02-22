@@ -1,6 +1,19 @@
 #include "Matrix.h"
 
+/*
+  test_Matrix.cc -- program for testing functionality of Matrix Class.
+
+  Author: John Cormican
+
+  Purpouse: To test the Matrix class I wrote.
+
+  Usage: To be used with Matrix.cc and Matrix.h to test implementation of
+          various matrix operations written in Matrix.cc.
+*/
+
+
 int main()
+/* Function to test functions written for Matrix class*/
 {
   Matrix A(4,3);
   A.randomize(-2,2);
@@ -18,9 +31,9 @@ int main()
   std::cout << "\nB: " << B << std::endl;
 
   Matrix C(4,3);
-  C.randomize(-2,2);
+  C.randomize(1,4);
   std::cout << "C, a new 4x3 matrix is created and filled with random values." << std::endl;
-  std::cout << "\nC: " << A << std::endl;
+  std::cout << "\nC: " << C << std::endl;
 
   std::cout << "Now calculate A + C" << std::endl;
   Matrix D = A + C;
