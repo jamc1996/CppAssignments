@@ -2,7 +2,7 @@
 
 #include "Board.h"
 
-Board::Board(int n, int m) : nrows(n), ncols(m), red_spots(new bool[n*m]), yellow_spots(new bool[n*m]), valids(new int[m]), red_entry(new bool*[m]), yellow_entry(new bool*[m]), red_win(false), yellow_win(false)
+Board::Board(int n, int m) : nrows(n), ncols(m), red_spots(new bool[n*m]), yellow_spots(new bool[n*m]), red_entry(new bool*[m]), yellow_entry(new bool*[m]), red_win(false), yellow_win(false), valids(new int[m]), last_move(-1)
 {
   for (int i = 0; i < 42; i++)
   {
@@ -18,7 +18,11 @@ Board::Board(int n, int m) : nrows(n), ncols(m), red_spots(new bool[n*m]), yello
   }
   red_win = false;
   yellow_win = false;
+}
 
+void Board::set_lastmove(int move)
+{
+  last_move = move;
 }
 
 void Board::make_move(bool p, int i)
@@ -35,7 +39,92 @@ void Board::make_move(bool p, int i)
   }
 }
 
+void Board::unmake_move(bool p, int i)
+{
+  if(p)
+  {
+    red_entry[i][valids[i]-1] = false;
+    valids[i]--;
+  }
+  else
+  {
+    yellow_entry[i][valids[i]-1] = false;
+    valids[i]--;
+  }
+}
 
+bool Board::check_win(bool** reds)
+{
+    for (int j = 0; j < 7; j++)
+    {
+      for (int i=0; i<4; i++)
+      {
+        if (reds[i][j])
+        {
+          if (reds[i+1][j])
+          {
+            if (reds [i+2][j])
+            {
+              if (reds[i+3][j])
+              {
+                return true;
+              }
+              i++;
+            }
+            i++;
+          }
+          i++;
+        }
+      }
+    }
+    for (int i = 0; i < 7; i++)
+    {
+      for (int j=0; j<4; j++)
+      {
+        if (valids[i]<(j+4))
+        {
+          break;
+        }
+        if (reds[i][j])
+        {
+          if (reds[i][j+1])
+          {
+            if (reds[i][j+2])
+            {
+              if (reds[i][j+3])
+              {
+                return true;
+              }
+              j++;
+            }
+            j++;
+          }
+          j++;
+        }
+      }
+    }
+    for (int i = 0; i < 4; i++)
+    {
+      for (int j=0; j<4; j++)
+      {
+        if (reds[i][j] && reds[i+1][j+1] && reds[i+2][j+2] && reds[i+3][j+3])
+        {
+          return true;
+        }
+      }
+    }
+    for (int i = 0; i < 4; i++)
+    {
+      for (int j=3; j<7; j++)
+      {
+        if (reds[i][j] && reds[i+1][j-1] && reds[i+2][j-2] && reds[i+3][j-3])
+        {
+          return true;
+        }
+      }
+    }
+    return false;
+}
 
 void Board::print()
 {
