@@ -46,7 +46,7 @@ void human_player::move_choice(Board *board)
       continue;
     }
     move--;
-    if (board->valids[move]==6)
+    if (board->valids[move]>=6)
     {
       std::cout << "player.cc: Invalid option, column is full." << std::endl;
       bad_move = true;
@@ -59,22 +59,20 @@ void human_player::move_choice(Board *board)
 
 void machine_player::move_choice(Board *board)
 {
-  int i, depth = 3;
+  int i, depth = 10;
   float val = -2;
   int best_move = 0;
   float best_val = -2.0;
-  std::vector<bool> moves = moves_generator(virtual_board);
-  std::vector<int> scores = {-2,-2,-2,-2,-2,-2,-2};
+  std::vector<float> scores = {-2.0,-2.0,-2.0,-2.0,-2.0,-2.0,-2.0};
+  std::vector<int> order = {3,2,4,1,5,0,6};
   if (board->last_move!=-1) {
-    printf("Making last move\n" );
     MakeFakeMove(!p1,board->last_move,line);
   }
   virtual_board.print();
-
-  std::cout << moves[4] << '\n';
-  for(i = 0; i<7; i++)
+  for(int j = 0; j<7; j++)
   {
-    if (moves[i])
+    i = order[j];
+    if (virtual_board.valids[i] <= 5)
     {
       MakeFakeMove(p1,i,line);
       if (virtual_board.check_win(my_discs(p1)))
@@ -83,8 +81,8 @@ void machine_player::move_choice(Board *board)
         UnmakeFakeMove(p1,i,line);
         break;
       }
-      val = -search(1, -1, depth, !p1);
-      printf("Move %d returns a value of %f\n",i,val );
+      val = -search(-2.0, 2.0, depth, !p1);
+      scores[i] = val;
       if (val>best_val)
       {
         best_val = val;
@@ -93,37 +91,47 @@ void machine_player::move_choice(Board *board)
       UnmakeFakeMove(p1,i,line);
     }
   }
+  for (int i = 0; i < 7; i++) {
+    std::cout << "Score of move " << i << " = " << scores[i] << '\n';
+  }
   board->set_lastmove(best_move);
   virtual_board.make_move(p1,best_move);
   board->make_move(p1,best_move);
 }
 
 
-float machine_player::search( int alpha, int beta, int depth, bool re)
+float machine_player::search( float alpha, float beta, int depth, bool re)
 {
-  std::cout << "re is " << re << '\n';
+  int k;
+  float val;
+
   if (depth == 0)
   {
     return 0.0;
   }
-  int k;
-  int val;
-  std::vector<bool> moves = moves_generator(virtual_board);
   for(k = 0; k<7; k++)
   {
-    std::cout << "Move" << k << " " << moves[k] << '\n';
-    if (moves[k])
+    if (virtual_board.valids[k]<=5)
     {
       MakeFakeMove(re,k,line);
       if (virtual_board.check_win(my_discs(re)))
       {
-        std::cout << "For " << re << " the winning position is" << '\n';
-        virtual_board.print();
         UnmakeFakeMove(re,k,line);
-        return 1.0/(float)(100-depth);
+        return 1.0/(float)(50-depth);
       }
-      val = -search(-beta, -alpha, depth -1,!re);
-      UnmakeFakeMove(re,k,line);
+      else
+      {
+        val = -search(-beta, -alpha, depth-1,!re);
+        UnmakeFakeMove(re,k,line);
+      }
+      if (val > alpha)
+      {
+        alpha = val;
+      }
+      if (alpha >= beta)
+      {
+        return val;
+      }
     }
   }
   return val;
@@ -131,13 +139,11 @@ float machine_player::search( int alpha, int beta, int depth, bool re)
 
 void machine_player::UnmakeFakeMove(bool re, int move, std::list<int> line)
 {
-  std::cout << "Now reversing " << re << " at " << move << '\n';
   virtual_board.unmake_move(re,move);
 }
 
 void machine_player::MakeFakeMove(bool re, int move, std::list<int> line)
 {
-  std::cout << "Now playing " << re << " at " << move << '\n';
   virtual_board.make_move(re,move);
   line.push_front(move);
 }
@@ -150,15 +156,14 @@ bool** machine_player::my_discs(bool p)
   return virtual_board.yellow_entry;
 }
 
-
-std::vector<bool> machine_player::moves_generator(Board virtual_board)
-{
-  std::vector<bool> moves = {true, true, true, true, true, true, true};
-  for (int i = 0; i < 7; i++)
-  {
-    if (virtual_board.valids[i] == 6) {
-      moves[i] = false;
-    }
-  }
-  return moves;
-}
+// std::vector<bool> machine_player::moves_generator(Board virtual_board)
+// {
+//   std::vector<bool> moves = {true, true, true, true, true, true, true};
+//   for (int i = 0; i < 7; i++)
+//   {
+//     if (virtual_board.valids[i] >= 6) {
+//       moves[i] = false;
+//     }
+//   }
+//   return moves;
+// }

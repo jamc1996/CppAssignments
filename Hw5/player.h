@@ -37,12 +37,12 @@ public:
 
   bool** my_discs(bool p);
 
-  float search(int alpha, int beta, int depth, bool re);
+  float search(float alpha, float beta, int depth, bool re);
 
   void MakeFakeMove(bool re, int move, std::list<int> line);
   void UnmakeFakeMove(bool re, int move, std::list<int> line);
 
 
-  std::vector<bool> moves_generator(Board virtual_board);
+  //std::vector<bool> moves_generator(Board virtual_board);
 
 };
