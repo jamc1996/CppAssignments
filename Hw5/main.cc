@@ -51,6 +51,7 @@ int main(int argc, char *argv[])
 
   for ( i = (n*m)/2; i--;)
   {
+    std::cout << board.valids[0] << std::endl;
     r->move_choice(&board);
     std::cout << "\033[31m" << "Red plays " << board.last_move << "\033[0m" <<std::endl;
     board.red_win = board.check_win(board.red_entry);
@@ -58,6 +59,7 @@ int main(int argc, char *argv[])
     {
       break;
     }
+    std::cout << board.valids[0] << std::endl;
     y->move_choice(&board);
     std::cout << "\033[33m" << "Yellow plays " << board.last_move << "\033[0m" << std::endl;
     board.yellow_win = board.check_win(board.yellow_entry);
