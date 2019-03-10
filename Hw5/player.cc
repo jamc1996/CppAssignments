@@ -61,7 +61,7 @@ void machine_player::move_choice(Board *board)
 {
   int i, depth = 10;
   float val = -2;
-  int best_move = 0;
+  int best_move = -1;
   float best_val = -2.0;
   std::vector<float> scores = {-2.0,-2.0,-2.0,-2.0,-2.0,-2.0,-2.0};
   std::vector<int> order = {3,2,4,1,5,0,6};
@@ -81,7 +81,7 @@ void machine_player::move_choice(Board *board)
         UnmakeFakeMove(p1,i,line);
         break;
       }
-      val = -search(-2.0, 2.0, depth, !p1);
+      val = -search(-1.9, 1.9, depth, !p1);
       scores[i] = val;
       if (val>best_val)
       {
@@ -103,7 +103,8 @@ void machine_player::move_choice(Board *board)
 float machine_player::search( float alpha, float beta, int depth, bool re)
 {
   int k;
-  float val;
+  float val = -1.5;
+  bool no_moves = true;
 
   if (depth == 0)
   {
@@ -113,16 +114,17 @@ float machine_player::search( float alpha, float beta, int depth, bool re)
   {
     if (virtual_board.valids[k]<=5)
     {
+      no_moves = false;
       MakeFakeMove(re,k,line);
       if (virtual_board.check_win(my_discs(re)))
       {
         UnmakeFakeMove(re,k,line);
-        return 1.0/(float)(50-depth);
+        val = 1.0/(float)(15-depth);
       }
       else
       {
-        val = -search(-beta, -alpha, depth-1,!re);
-        UnmakeFakeMove(re,k,line);
+        val = -search(-beta, -alpha, depth-1, !re);
+        UnmakeFakeMove(re, k, line);
       }
       if (val > alpha)
       {
@@ -130,11 +132,14 @@ float machine_player::search( float alpha, float beta, int depth, bool re)
       }
       if (alpha >= beta)
       {
-        return val;
+        return alpha;
       }
     }
   }
-  return val;
+  if (no_moves) {
+    return 0;
+  }
+  return alpha;
 }
 
 void machine_player::UnmakeFakeMove(bool re, int move, std::list<int> line)
