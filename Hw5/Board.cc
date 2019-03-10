@@ -55,7 +55,7 @@ void Board::unmake_move(bool p, int i)
 
 bool Board::check_win(bool** reds)
 {
-    for (int j = 0; j < 7; j++)
+    for (int j = 0; j < 6; j++)
     {
       for (int i=0; i<4; i++)
       {
@@ -79,7 +79,7 @@ bool Board::check_win(bool** reds)
     }
     for (int i = 0; i < 7; i++)
     {
-      for (int j=0; j<4; j++)
+      for (int j=0; j<3; j++)
       {
         if (valids[i]<(j+4))
         {
@@ -105,7 +105,7 @@ bool Board::check_win(bool** reds)
     }
     for (int i = 0; i < 4; i++)
     {
-      for (int j=0; j<4; j++)
+      for (int j=0; j<3; j++)
       {
         if (reds[i][j] && reds[i+1][j+1] && reds[i+2][j+2] && reds[i+3][j+3])
         {
@@ -113,11 +113,11 @@ bool Board::check_win(bool** reds)
         }
       }
     }
-    for (int i = 0; i < 4; i++)
+    for (int i = 3; i < 7; i++)
     {
-      for (int j=3; j<7; j++)
+      for (int j=0; j<3; j++)
       {
-        if (reds[i][j] && reds[i+1][j-1] && reds[i+2][j-2] && reds[i+3][j-3])
+        if (reds[i][j] && reds[i-1][j+1] && reds[i-2][j+2] && reds[i-3][j+3])
         {
           return true;
         }
