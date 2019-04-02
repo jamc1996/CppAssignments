@@ -1,48 +1,63 @@
-#include "Board.h"
+#ifndef PLAYER_H
+#define PLAYER_H
+
+#include "board.h"
+#include <math.h>
 #include <vector>
-#include <list>
+#include <limits>
 
-class player
+/*      player.h -- header file for the Player classes.
+ *
+ *      Author:     John Cormican
+ *
+ */
+
+class Player
+/* Abstact class both HumanPlayer and */
 {
 public:
-  //bool p1;
-  //std::vector<bool> move_generator(Board board);
-
   virtual void move_choice(Board *board)=0;
-  //virtual int search(Board board);
-
-  //virtual int evaluation_function();
+  virtual ~Player();
 };
 
 
-class human_player : public player
+class HumanPlayer : public Player
+/* class with functions required to allow human to play with terminal input. */
 {
-public:
+private:
   bool p1;
-  human_player(bool red);
+
+public:
+  HumanPlayer(bool red);
   virtual void move_choice(Board *board);
-
+  ~HumanPlayer();
 };
 
-class machine_player : public player
+class MachinePlayer : public Player
 {
-public:
+private:
   bool p1;
+  int depth;
   Board virtual_board;
-  std::list<int> line;
+  std::vector<int> order;
 
-  machine_player(bool red, int n, int m);
+public:
+  //Constructor
+  MachinePlayer(bool red, int n, int m, int d);
 
+  // Necessary function for good machine performance
+  double evaluation_function(Board *board, bool player, int candidate_move);
   virtual void move_choice(Board *board);
-
   bool** my_discs(bool p);
+  void check_options();
+  void increase_depth(int i);
+  double search(double alpha, double beta, int depth, bool re);
+  void MakeFakeMove(bool re, int move);
+  void UnmakeFakeMove(bool re, int move);
 
-  float search(float alpha, float beta, int depth, bool re);
 
-  void MakeFakeMove(bool re, int move, std::list<int> line);
-  void UnmakeFakeMove(bool re, int move, std::list<int> line);
-
-
-  //std::vector<bool> moves_generator(Board virtual_board);
+  ~MachinePlayer();
 
 };
+
+#endif

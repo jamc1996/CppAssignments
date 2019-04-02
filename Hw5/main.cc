@@ -2,15 +2,30 @@
 #include <unistd.h>
 
 #include "player.h"
-#include "Board.h"
+#include "board.h"
+#include "game.h"
 
+/*    main.cc -- program to run Connect4 game using player, board and game files.
+ *
+ *    Author: John Cormican
+ *
+ *    Purpouse: To play Connect4 on the terminal.
+ *
+ *    Usage: Compile with the provided make file and run with optional args.
+ */
 
 int main(int argc, char *argv[])
+/*  Function that runs the connect 4 game by calling
+ *  board, player and game classes.
+ */
 {
-  int c,i;
+
+  // Command line arguments to choose machine or human players and search depth
+  int c;
   bool red_player = false;
   bool yellow_player = false;
-  while ((c = getopt( argc, argv, "ry")) != -1)
+  int d = 11;
+  while ((c = getopt( argc, argv, "ryd:")) != -1)
   {
     switch(c)
     {
@@ -20,70 +35,46 @@ int main(int argc, char *argv[])
     case 'y':
       yellow_player = true;
       break;
+    case 'd':
+      d = atoi(optarg);
+      break;
     case '?':
       break;
     }
   }
+
+  // Board dimensions set and abstract player class declared
   int n = 6;
   int m = 7;
   Board board(n,m);
-  player* r = NULL;
-  player* y = NULL;
+  Player* r = NULL;
+  Player* y = NULL;
 
+  // human/machine player constructed based on command line args.
   if (!red_player)
   {
-    r = new human_player(true);
+    r = new HumanPlayer(true);
   }
   else
   {
-    r = new machine_player(true, n, m);
+    r = new MachinePlayer(true, n, m, d);
   }
-
   if (!yellow_player)
   {
-    y = new human_player(false);
+    y = new HumanPlayer(false);
   }
   else
   {
-    y = new machine_player(false, n, m);
-
+    y = new MachinePlayer(false, n, m, d);
   }
 
-  for ( i = (n*m)/2; i--;)
-  {
-    std::cout << board.valids[0] << std::endl;
-    r->move_choice(&board);
-    std::cout << "\033[31m" << "Red plays " << board.last_move << "\033[0m" <<std::endl;
-    board.red_win = board.check_win(board.red_entry);
-    if (board.red_win)
-    {
-      break;
-    }
-    std::cout << board.valids[0] << std::endl;
-    y->move_choice(&board);
-    std::cout << "\033[33m" << "Yellow plays " << board.last_move << "\033[0m" << std::endl;
-    board.yellow_win = board.check_win(board.yellow_entry);
-    if (board.yellow_win)
-    {
-      break;
-    }
-  }
-  board.print();
+  // Game played:
+  Game game(r, y, &board);
+  game.play();
 
-  if (board.red_win) {
-    std::cout << "\033[31m" << " RED PLAYER WINS!!! " << "\033[0m" << std::endl;
-  }
-  else if (board.yellow_win)
-  {
-    std::cout << "\033[33m" << " YELLOW PLAYER WINS!!! " << "\033[0m" << std::endl;
-  }
-  else
-  {
-    std::cout << "DRAW!!!" << std::endl;
-  }
-  // board.make_move(true,  3);
-  // board.make_move(false,  3);
-  // board.make_move(true,  1);
+
+  delete r;
+  delete y;
 
 
   return 0;
