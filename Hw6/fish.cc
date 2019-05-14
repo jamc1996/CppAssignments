@@ -5,7 +5,13 @@ int Fish::calc_key()
   return coord[0]*fdim[1]*fdim[2] + coord[1]*fdim[2] + coord[2];
 }
 
-Minnow::Minnow(int coord_a[3], int dims[3], int id) /*: coord{coord_a[0], coord_a[1], coord_a[2]}, fdim{dims[0], dims[1], dims[2]}*/
+
+Fish::~Fish()
+{
+
+}
+
+Minnow::Minnow(int coord_a[3], int dims[3], int id)
 {
   fish_id = id;
   type = 0;
@@ -17,7 +23,13 @@ Minnow::Minnow(int coord_a[3], int dims[3], int id) /*: coord{coord_a[0], coord_
 
 void Minnow::move()
 {
+  // Minnow can move to any of 26 adjacent squares
   int x = rand() %26;
+
+  // Probablities chosen so:
+  // moves back = 9/26
+  // move forward = 9/26
+  // no move in given dir = 8/26
 
   if (x < 9)
   {
@@ -46,13 +58,14 @@ void Minnow::move()
     coord[2]++;
   }
 
-  for (size_t i = 0; i < 3; i++)
+  // Finally make sure obey periodic boundary conditions:
+  for (int i = 0; i < 3; i++)
   {
     if (coord[i]<0)
     {
       coord[i] = fdim[i] - 1;
     }
-    else if(coord[i] == fdim[i])
+    else if(coord[i] >= fdim[i])
     {
       coord[i] = 0;
     }
@@ -64,13 +77,21 @@ Tuna::Tuna(int coord_a[3], int dims[3], int id) /*: coord{coord_a[0], coord_a[1]
   fish_id = id;
   type = 1;
   has_eaten = false;
+  starvation_level = 0;
   for (size_t i = 0; i < 3; i++)
   {
     coord[i] = coord_a[i];
-    fdim[i] = dims[3];
+    fdim[i] = dims[i];
   }
-  std::cout << "Tuna created!" << '\n';
 }
+
+//int Tuna::get_starvation(){ return starvation_level;  }
+
+//bool Tuna::get_haseaten() const {  return has_eaten;}
+
+//bool Shark::get_haseaten() const {  return has_eaten;}
+
+//int Shark::get_starvation(){  return starvation_level;}
 
 Shark::Shark(int coord_a[3], int dims[3], int id)
 {
@@ -81,13 +102,25 @@ Shark::Shark(int coord_a[3], int dims[3], int id)
   for (size_t i = 0; i < 3; i++)
   {
     coord[i] = coord_a[i];
-    fdim[i] = dims[3];
+    fdim[i] = dims[i];
   }
-  std::cout << "Shark created!" << '\n';
+}
+
+void Tuna::eat()
+{
+  has_eaten=true;
+  starvation_level=0;
+}
+
+void Shark::eat()
+{
+  has_eaten=true;
+  starvation_level=0;
 }
 
 void Shark::move()
 {
+  // For sharks it was much easier to just generate two random numbers
   int x = rand() % 6;
   int y = rand() % 4;
   int dim1 = x%3;
@@ -110,48 +143,66 @@ void Shark::move()
   {
     coord[(dim1+dim2)%3]++;
   }
+  for (int i = 0; i < 3; i++) {
+    if (coord[i]<0) {
+      coord[i]+=fdim[i];
+    }
+    else if(coord[i]>=fdim[i]){
+      coord[i]-=fdim[i];
+    }
+  }
+  starvation_level++;
+  printf("%d starvation level %d\n", type, starvation_level);
 }
 
 void Tuna::move()
 {
-  int x = rand() %8;
-
+  //Tuna move planar diagonal -> two dimensions change, 1 held constant.
+  //                          -> 12 possible moves
+  int x = rand() %12;
+  int unchanged_dim;
   if (x < 4)
   {
-    coord[0]--;
+    unchanged_dim = 0;
   }
-  else
+  else if (x<8)
   {
-    coord[0]++;
+    unchanged_dim = 1;
   }
-
-  if (x%2 == 0)
+  else if (x<8)
   {
-    coord[1]--;
-  }
-  else
-  {
-    coord[1]++;
+    unchanged_dim = 2;
   }
 
   if ((x%4)/2 == 0)
   {
-    coord[2]--;
+    coord[(unchanged_dim+1)%3]--;
   }
   else
   {
-    coord[2]++;
+    coord[(unchanged_dim+1)%3]++;
   }
 
-  for (size_t i = 0; i < 3; i++)
+  if ((x%4)%2 == 0)
+  {
+    coord[(unchanged_dim+2)%3]--;
+  }
+  else
+  {
+    coord[(unchanged_dim+2)%3]++;
+  }
+
+  for (int i = 0; i < 3; i++)
   {
     if (coord[i]<0)
     {
-      coord[i] = fdim[i] - 1;
+      coord[i] = fdim[i];
     }
-    else if(coord[i] == fdim[i])
+    else if(coord[i] >= fdim[i])
     {
       coord[i] = 0;
     }
   }
+  starvation_level++;
+  printf("%d starvation level %d\n", type, starvation_level);
 }

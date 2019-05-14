@@ -14,9 +14,17 @@ protected:
   int type;
   int coord[3];
   int fdim[3];
+  int starvation_level;
+  bool has_eaten;
 public:
   virtual void move()=0;
+  virtual void eat(){return;};
   int calc_key();
+  //virtual int get_starvation() const {return 0;};
+  //virtual bool get_haseaten() const {return false;};
+  //virtual void eat() { return; };
+
+  ~Fish();
 };
 
 class Minnow : public Fish
@@ -32,22 +40,27 @@ public:
 class Tuna : public Fish
 {
 private:
-  bool has_eaten;
 
 public:
   Tuna(int coord_a[3], int dims[3], int id);
   void move();
+  //int get_starvation() const {return starvation_level;};
+  //bool get_haseaten() const {return has_eaten;};
+  void eat();
 };
 
-class Shark : Fish
+class Shark : public Fish
 {
 private:
-  bool has_eaten;
-  bool starvation_level;
+
 
 public:
   Shark(int coord_a[3], int dims[3], int id);
   void move();
+  //int get_starvation() const {return starvation_level;};
+  //bool get_haseaten() const {return has_eaten;};
+  void eat();
+
 };
 
 #endif
