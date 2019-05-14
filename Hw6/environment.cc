@@ -34,6 +34,9 @@ void Environment::add_fish(int new_fish, int type)
     for (size_t j = 0; j < 3; j++)
     {
       fish_pos[j] = rand()%dims[j];
+      if (type==1) {
+        std::cout << "fi" << i << j << " " << fish_pos[j]  << '\n';
+      }
     }
     key = fish_pos[0]*dims[1]*dims[2] + fish_pos[1]*dims[2] + fish_pos[2];
 
@@ -82,20 +85,18 @@ void Environment::move_rand_fish()
       //If the species is extinct nothing moves.
       return;
     }
+
     // Selected fish is moved:
     std::cout << "Mover is " << mover << '\n';
     int key = move_fish(mover);
 
+    // Occurs if fish starves attempting to move
     if (key < 0) {
-      printf("ok\n");
       return;
     }
 
-    std::cout << "key is " << key << '\n';
-list_fish();
     // Environment is updated based on the move:
     update_step(key);
-    std::cout << "ok" << '\n';
   }
 }
 
@@ -110,8 +111,6 @@ int Environment::move_fish(int mover)
     if(it->second->fish_id == mover)
     {
       // If tuna/shark is at starvation_level 4 it will die on next move.
-      std::cout << "type is " << it->second->type << '\n';
-
       if (it->second->type>0 && it->second->starvation_level==4)
       {
         std::cout << "starving" << it->second->type << '\n';

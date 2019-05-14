@@ -196,13 +196,18 @@ void Tuna::move()
   {
     if (coord[i]<0)
     {
-      coord[i] = fdim[i];
+      coord[i] = fdim[i]-1;
     }
     else if(coord[i] >= fdim[i])
     {
+      std::cout << "i is " << i << "coord[i] is "  << coord[i] << '\n';
       coord[i] = 0;
     }
   }
+  std::cout << fdim[0] << fdim[1] << fdim[2] << '\n';
+
+  std::cout << coord[0] << coord[1] << coord[2] << '\n';
+
   starvation_level++;
   printf("%d starvation level %d\n", type, starvation_level);
 }
