@@ -1,12 +1,30 @@
 #include "fish.h"
 
+/*      fish.cc -- functions for Fish classes.
+ *
+ *      Author:     John Cormican
+ *
+ *      Purpouse:   To simulate different types of fish.
+ *
+ *      Usage:      Methods called from a Environment to change/give information
+ *                  about the fish.
+ */
+
+// Base Fish functions:
 int Fish::calc_key()
+/* Returns the key of fishes location from 3-d position. */
 {
   return coord[0]*fdim[1]*fdim[2] + coord[1]*fdim[2] + coord[2];
 }
 
+Fish::~Fish(){
+}
+
+// Minnows functions
+
 
 Minnow::Minnow(int coord_a[3], int dims[3], int id)
+/* Constructor for Minnow class. */
 {
   fish_id = id;
   type = 0;
@@ -17,6 +35,7 @@ Minnow::Minnow(int coord_a[3], int dims[3], int id)
 }
 
 void Minnow::move()
+/* Function to simulate minnow moving. */
 {
   // Minnow can move to any of 26 adjacent squares
   int x = rand() %26;
@@ -67,7 +86,15 @@ void Minnow::move()
   }
 }
 
-Tuna::Tuna(int coord_a[3], int dims[3], int id) /*: coord{coord_a[0], coord_a[1], coord_a[2]}, fdim{dims[0], dims[1], dims[2]}*/
+Minnow::~Minnow()
+{
+
+}
+
+// Tuna Functions:
+
+Tuna::Tuna(int coord_a[3], int dims[3], int id)
+/* Constructor for Tuna class. */
 {
   fish_id = id;
   type = 1;
@@ -80,15 +107,76 @@ Tuna::Tuna(int coord_a[3], int dims[3], int id) /*: coord{coord_a[0], coord_a[1]
   }
 }
 
-//int Tuna::get_starvation(){ return starvation_level;  }
+void Tuna::move()
+/* Function to simulate a Tuna moving.*/
+{
+  //Tuna move planar diagonal -> two dimensions change, 1 held constant.
+  //                          -> 12 possible moves
+  int x = rand() %12;
+  int unchanged_dim;
+  if (x < 4)
+  {
+    unchanged_dim = 0;
+  }
+  else if (x<8)
+  {
+    unchanged_dim = 1;
+  }
+  else
+  {
+    unchanged_dim = 2;
+  }
 
-//bool Tuna::get_haseaten() const {  return has_eaten;}
+  if ((x%4)/2 == 0)
+  {
+    coord[(unchanged_dim+1)%3]--;
+  }
+  else
+  {
+    coord[(unchanged_dim+1)%3]++;
+  }
 
-//bool Shark::get_haseaten() const {  return has_eaten;}
+  if ((x%4)%2 == 0)
+  {
+    coord[(unchanged_dim+2)%3]--;
+  }
+  else
+  {
+    coord[(unchanged_dim+2)%3]++;
+  }
 
-//int Shark::get_starvation(){  return starvation_level;}
+  // Periodic boundary conditions observed:
+  for (int i = 0; i < 3; i++)
+  {
+    if (coord[i]<0)
+    {
+      coord[i] = fdim[i]-1;
+    }
+    else if(coord[i] >= fdim[i])
+    {
+      coord[i] = 0;
+    }
+  }
+
+  // Starvation level goes up.
+  starvation_level++;
+}
+
+
+void Tuna::eat()
+/* Function to simulate a Tuna eating. */
+{
+  has_eaten=true;
+  starvation_level=0;
+}
+
+Tuna::~Tuna(){
+}
+
+//Shark Functions:
 
 Shark::Shark(int coord_a[3], int dims[3], int id)
+/* Constructor for Shark class. */
 {
   fish_id = id;
   type = 2;
@@ -101,19 +189,8 @@ Shark::Shark(int coord_a[3], int dims[3], int id)
   }
 }
 
-void Tuna::eat()
-{
-  has_eaten=true;
-  starvation_level=0;
-}
-
-void Shark::eat()
-{
-  has_eaten=true;
-  starvation_level=0;
-}
-
 void Shark::move()
+/* Function to simulate a shark moving. */
 {
   // For sharks it was much easier to just generate two random numbers
   int x = rand() % 6;
@@ -138,6 +215,8 @@ void Shark::move()
   {
     coord[(dim1+dim2)%3]++;
   }
+
+  // Periodic boundary conditions observed:
   for (int i = 0; i < 3; i++) {
     if (coord[i]<0) {
       coord[i]+=fdim[i];
@@ -146,83 +225,17 @@ void Shark::move()
       coord[i]-=fdim[i];
     }
   }
+
+  // Starvation level increases:
   starvation_level++;
-  printf("%d starvation level %d\n", type, starvation_level);
 }
 
-void Tuna::move()
+void Shark::eat()
+/* Function to simulate a shark eating. */
 {
-  //Tuna move planar diagonal -> two dimensions change, 1 held constant.
-  //                          -> 12 possible moves
-  int x = rand() %12;
-  int unchanged_dim;
-  if (x < 4)
-  {
-    unchanged_dim = 0;
-  }
-  else if (x<8)
-  {
-    unchanged_dim = 1;
-  }
-  else if (x<8)
-  {
-    unchanged_dim = 2;
-  }
-
-  if ((x%4)/2 == 0)
-  {
-    coord[(unchanged_dim+1)%3]--;
-  }
-  else
-  {
-    coord[(unchanged_dim+1)%3]++;
-  }
-
-  if ((x%4)%2 == 0)
-  {
-    coord[(unchanged_dim+2)%3]--;
-  }
-  else
-  {
-    coord[(unchanged_dim+2)%3]++;
-  }
-
-  for (int i = 0; i < 3; i++)
-  {
-    if (coord[i]<0)
-    {
-      coord[i] = fdim[i]-1;
-    }
-    else if(coord[i] >= fdim[i])
-    {
-      std::cout << "i is " << i << "coord[i] is "  << coord[i] << '\n';
-      coord[i] = 0;
-    }
-  }
-  std::cout << fdim[0] << fdim[1] << fdim[2] << '\n';
-
-  std::cout << coord[0] << coord[1] << coord[2] << '\n';
-
-  starvation_level++;
-  printf("%d starvation level %d\n", type, starvation_level);
+  has_eaten=true;
+  starvation_level=0;
 }
 
-Fish::~Fish()
-{
-
-}
-
-Minnow::~Minnow()
-{
-
-}
-
-Tuna::~Tuna()
-{
-
-}
-
-Shark::~Shark()
-{
-
+Shark::~Shark(){
 }

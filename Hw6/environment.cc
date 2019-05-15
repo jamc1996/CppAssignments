@@ -1,5 +1,16 @@
 #include "environment.h"
 
+/*      environment.cc -- functions for Environment class.
+ *
+ *      Author:     John Cormican
+ *
+ *      Purpouse:   To simulate the environment of fish.
+ *
+ *      Usage:      Methods called from a Simulation to change/give information
+ *                  about the environment.
+ */
+
+
 Environment::Environment(int dim_array[3], int nu_fish[3])
 /* Constructor for Environment class. */
 {
@@ -15,9 +26,7 @@ Environment::Environment(int dim_array[3], int nu_fish[3])
   add_fish<Tuna>(nu_fish[1],1);
   add_fish<Shark>(nu_fish[2],2);
 
-  std::cout << "Enivornment Created!" << '\n';
 }
-
 
 
 template <class myFish>
@@ -34,9 +43,6 @@ void Environment::add_fish(int new_fish, int type)
     for (size_t j = 0; j < 3; j++)
     {
       fish_pos[j] = rand()%dims[j];
-      if (type==1) {
-        std::cout << "fi" << i << j << " " << fish_pos[j]  << '\n';
-      }
     }
     key = fish_pos[0]*dims[1]*dims[2] + fish_pos[1]*dims[2] + fish_pos[2];
 
@@ -87,7 +93,6 @@ void Environment::move_rand_fish()
     }
 
     // Selected fish is moved:
-    std::cout << "Mover is " << mover << '\n';
     int key = move_fish(mover);
 
     // Occurs if fish starves attempting to move
@@ -113,7 +118,6 @@ int Environment::move_fish(int mover)
       // If tuna/shark is at starvation_level 4 it will die on next move.
       if (it->second->type>0 && it->second->starvation_level==4)
       {
-        std::cout << "starving" << it->second->type << '\n';
         kill_fish(it,mover,it->second->type);
         return -1;
       }
@@ -123,9 +127,7 @@ int Environment::move_fish(int mover)
       key = (it->second)->calc_key();
 
       // Map is updated:
-      std::cout << "inserting" << '\n';
       fish_map.insert(std::make_pair(key,it->second));
-      std::cout << "type is " << it->second->type << '\n';
 
       fish_map.erase(it);
       break;
@@ -163,7 +165,6 @@ void Environment::update_step(int key)
   if (choice > 0) {
     enact_update(choice, key, cell_fish[1], res);
   }
-  std::cout << "??" << '\n';
 }
 
 void Environment::count_fish_types(int cell_fish[5], int key, fishy_pair res)
@@ -213,7 +214,6 @@ int Environment::pick_possibility(int cell_fish[5])
   }
 
   // If possibilites available, pick one at random:
-
   return pick_random(possibilities);
 }
 
@@ -240,14 +240,14 @@ void Environment::enact_update(int c, int key, int n_tuna, fishy_pair res)
 
     // Tuna + Minnows -> tuna eats all minnows:
     case 4:
-      std::cout << "time to kill minnows" << '\n';
+      // All minnows eaten
       for (auto itr = res.first; itr != res.second; itr++)
       {
-        std::cout << "ok" << '\n';
         if (itr->second->type == 0)
         {
-          std::cout << "itr" << itr->second->fish_id << '\n';
           kill_fish(itr,itr->second->fish_id,0);
+
+          // Safest to reset start as it may have changed if first elem deleted.
           res = fish_map.equal_range(key);
           itr = res.first;
         }
@@ -260,6 +260,7 @@ void Environment::enact_update(int c, int key, int n_tuna, fishy_pair res)
 
     // Shark + Tuna -> shark eats random tuna:
     case 5:
+      // Must select random tuna to be eaten:
       x = rand()%n_tuna;
       counter = 0;
       for (auto itr = res.first; itr != res.second; itr++)
@@ -267,7 +268,6 @@ void Environment::enact_update(int c, int key, int n_tuna, fishy_pair res)
         if (itr->second->type == 1)
         {
           if (counter == x) {
-            std::cout << "itr" << itr->second->fish_id << '\n';
             kill_fish(itr,itr->second->fish_id,1);
             res = fish_map.equal_range(key);
             itr = res.first;
@@ -275,7 +275,7 @@ void Environment::enact_update(int c, int key, int n_tuna, fishy_pair res)
         }
         if (itr->second->type == 2)
         {
-        //  itr->second->eat();
+          itr->second->eat();
         }
         counter++;
       }
@@ -285,19 +285,18 @@ void Environment::enact_update(int c, int key, int n_tuna, fishy_pair res)
       feeding_frenzy(key);
       break;
   }
-  std::cout << "step almost complete" << '\n';
-
 }
 
 void Environment::feeding_frenzy(int key)
+/* Function to simulate a shark's feeding frenzy. */
 {
-  std::cout << "Frenzy beginning!" << '\n';
-  int pos[3];
-  key_to_pos(key, pos);
+  // kp is the key of each surrounding point where fish are deleted
   int kp = key - dims[2]*dims[1] - dims[1] - 1;
   for (int k = 0; k < 3; k++) {
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
+
+        // Periodic bcs:
         if (kp<0) {
           kp+=dims[0]*dims[1]*dims[2];
         }
@@ -305,6 +304,8 @@ void Environment::feeding_frenzy(int key)
         {
           kp-=dims[0]*dims[1]*dims[2];
         }
+
+        //Each cell is searched for and if necessary minnows deleted:
         fishy_pair res = fish_map.equal_range(kp+j);
         for (auto itr = res.first; itr != res.second; itr++)
         {
@@ -312,8 +313,8 @@ void Environment::feeding_frenzy(int key)
           {
             if (itr->second->type == 0)
             {
-              std::cout << "itr" << itr->second->fish_id << '\n';
               kill_fish(itr,itr->second->fish_id,0);
+              //safest to restart if fish killing
               res = fish_map.equal_range(key);
               itr = res.first;
             }
@@ -321,7 +322,7 @@ void Environment::feeding_frenzy(int key)
             {
               if (itr->second->type == 2)
               {
-                //itr->second->eat();
+                itr->second->eat();
               }
             }
           }
@@ -334,6 +335,7 @@ void Environment::feeding_frenzy(int key)
 }
 
 void Environment::key_to_pos(int key, int pos[3])
+/* Function to convert a 1-d key a 3-d position. */
 {
   pos[0] = key/(dims[1]*dims[2]);
   pos[1] = (key/dims[2])%dims[0];
@@ -342,12 +344,18 @@ void Environment::key_to_pos(int key, int pos[3])
 
 
 void Environment::kill_fish(fishy_iter it, int id, int type)
+/* Function to kill a fish - delete fish and removes from environment. */
 {
-  std::cout << "Goodbye Cruel World :'('" << it->second->fish_id << '\n';
   delete it->second;
   fish_map.erase(it);
   fish_ids[type].remove(id);
   n_living_fish--;
+}
+
+int Environment::get_num(int n)
+/* Function to return the number of living fish of a given type label.*/
+{
+  return fish_ids[n].size();
 }
 
 

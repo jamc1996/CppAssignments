@@ -1,0 +1,7 @@
+The only way I could get non-zero populations was to start with an enormous number of minnows (10,000)  but if I had kept running the code they would probably have died out too.
+
+The only way I can think of to achieve stable population would be increasing the spawn size so two minnows produces 5-10 new minnows or decreasing how damaging the Shark's feeding frenzy is.
+
+The shark population seemed to die out for anything outside 25-30 as they either died out or ate too much so that finding food became hard.
+
+The tuna were the easiest to keep alive and their numbers generally increased.

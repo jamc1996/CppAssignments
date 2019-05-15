@@ -6,6 +6,12 @@
 #include <time.h>
 #include <string>
 
+/*      fish.h -- header file for the Fish classes.
+ *
+ *      Author:     John Cormican
+ *
+ */
+
 class Fish
 {
   friend class Environment;
@@ -20,11 +26,7 @@ public:
   virtual void move()=0;
   virtual void eat(){return;};
   int calc_key();
-  ~Fish();
-  //virtual int get_starvation() const {return 0;};
-  //virtual bool get_haseaten() const {return false;};
-  //virtual void eat() { return; };
-
+  virtual ~Fish();
 };
 
 class Minnow : public Fish
@@ -45,8 +47,6 @@ private:
 public:
   Tuna(int coord_a[3], int dims[3], int id);
   void move();
-  //int get_starvation() const {return starvation_level;};
-  //bool get_haseaten() const {return has_eaten;};
   void eat();
   ~Tuna();
 };
@@ -59,8 +59,6 @@ private:
 public:
   Shark(int coord_a[3], int dims[3], int id);
   void move();
-  //int get_starvation() const {return starvation_level;};
-  //bool get_haseaten() const {return has_eaten;};
   void eat();
   ~Shark();
 };

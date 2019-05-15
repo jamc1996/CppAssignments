@@ -6,7 +6,11 @@
 #include <list>
 #include <map>
 
-
+/*      environment.h -- header file for the Environment class.
+ *
+ *      Author:     John Cormican
+ *
+ */
 
 
 //Typedefs to simplify function arguments
@@ -43,6 +47,8 @@ public:
   void kill_fish(fishy_iter it, int id, int type);
 
   void list_fish();
+  int get_num(int n);
+
   void key_to_pos(int key, int pos[3]);
 };
 
