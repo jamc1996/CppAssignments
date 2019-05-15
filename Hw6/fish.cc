@@ -6,11 +6,6 @@ int Fish::calc_key()
 }
 
 
-Fish::~Fish()
-{
-
-}
-
 Minnow::Minnow(int coord_a[3], int dims[3], int id)
 {
   fish_id = id;
@@ -210,4 +205,24 @@ void Tuna::move()
 
   starvation_level++;
   printf("%d starvation level %d\n", type, starvation_level);
+}
+
+Fish::~Fish()
+{
+
+}
+
+Minnow::~Minnow()
+{
+
+}
+
+Tuna::~Tuna()
+{
+
+}
+
+Shark::~Shark()
+{
+
 }

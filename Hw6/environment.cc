@@ -344,6 +344,7 @@ void Environment::key_to_pos(int key, int pos[3])
 void Environment::kill_fish(fishy_iter it, int id, int type)
 {
   std::cout << "Goodbye Cruel World :'('" << it->second->fish_id << '\n';
+  delete it->second;
   fish_map.erase(it);
   fish_ids[type].remove(id);
   n_living_fish--;
